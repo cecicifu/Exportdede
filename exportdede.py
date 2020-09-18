@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import requests
 import signal
 import threading
 import sys
@@ -24,32 +23,7 @@ except ImportError:
 # GLOBAL VARS
 base_url = "https://www.megadede.com"
 
-pelis_favorites = "/pelis/favorites"
-pelis_pending = "/pelis/pending"
-pelis_seen = "/pelis/seen"
-
-series_following = "/series/following"
-series_favorites = "/series/favorites"
-series_pending = "/series/pending"
-series_seen = "/series/seen"
-
-
-location = None
 timeout = 2
-
-s = requests.Session()
-s.headers = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
-}
-# FREE SSL PROXIES https://www.sslproxies.org/
-s.proxies = {
-    "https://185.110.96.11:3128",
-    "https://185.110.96.12:3128",
-    "https://78.46.81.7:1080",
-    "https://51.255.103.170:3129",
-    "https://188.40.183.189:1080",
-    "https://188.165.141.114:3129",
-}
 
 
 class bcolors:
@@ -63,19 +37,21 @@ class bcolors:
     UNDERLINE = "\033[4m"
 
 
-def signal_handler(key, frame):
+def exit_handler(key, frame):
     print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
           "] Exiting...\n")
     exit(1)
 
 
-signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGINT, exit_handler)
 
 
 def execute():
     try:
         print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-              "] Ejecutando script..\n")
+              "] Ejecutando herramienta..\n")
+
+        sleep(timeout)
 
         option = webdriver.ChromeOptions()
         option.add_argument("-incognito")
@@ -88,7 +64,9 @@ def execute():
         browser.get(base_url + "/login")
 
         print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-              "] Necesitas iniciar sesión para que el script continue..\n")
+              "] Abriendo navegador.. inicia sesión para continuar.\n")
+
+        sleep(timeout)
 
         wait = WebDriverWait(browser, 60)
 
@@ -102,6 +80,13 @@ def execute():
                   "] Has iniciado sesión correctamente!\n")
             browser.minimize_window()
 
+            sleep(timeout)
+
+            print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
+                  "] Mostrando listas..\n")
+
+            sleep(timeout)
+
             # Capturar pelis
             print(get_pelis_favorites(browser))
             print(get_pelis_pending(browser))
@@ -114,128 +99,139 @@ def execute():
             print(get_series_seen(browser))
 
             print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
+                  "] Exportando listas..\n")
+
+            sleep(timeout)
+
+            print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
                   "] Listas exportadas!\n")
+
+            sleep(timeout)
+
+            print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
+                  "] Finalizando herramienta..\n")
+
+            sleep(timeout)
 
         else:
             print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
                   "] No se ha iniciado sesion correctamente o ha ocurrido un error!\n")
 
+            sleep(timeout)
+
+            print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
+                  "] Finalizando herramienta..\n")
+
         browser.quit()
 
-    except requests.exceptions.Timeout:
-        print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-              "] Timeout exception\n")
-    except requests.exceptions.TooManyRedirects:
-        print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-              "] Too many redirects exception\n")
     except Exception as e:
         print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
               "]", str(e), "\n")
 
 
 def get_pelis_favorites(browser):
-    browser.get(base_url + pelis_favorites)
+    browser.get(base_url + "/pelis/favorites")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    peliculas = []
+    items = []
     for row in rows:
-        peliculas.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return peliculas
+    return items
 
 
 def get_pelis_pending(browser):
-    browser.get(base_url + pelis_pending)
+    browser.get(base_url + "/pelis/pending")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    peliculas = []
+    items = []
     for row in rows:
-        peliculas.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return peliculas
+    return items
 
 
 def get_pelis_seen(browser):
-    browser.get(base_url + pelis_seen)
+    browser.get(base_url + "/pelis/seen")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    peliculas = []
+    items = []
     for row in rows:
-        peliculas.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return peliculas
+    return items
 
 
 def get_series_following(browser):
-    browser.get(base_url + series_following)
+    browser.get(base_url + "/series/following")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    series = []
+    items = []
     for row in rows:
-        series.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return series
+    return items
 
 
 def get_series_favorites(browser):
-    browser.get(base_url + series_favorites)
+    browser.get(base_url + "/series/favorites")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    series = []
+    items = []
     for row in rows:
-        series.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return series
+    return items
 
 
 def get_series_pending(browser):
-    browser.get(base_url + series_pending)
+    browser.get(base_url + "/series/pending")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    series = []
+    items = []
     for row in rows:
-        series.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return series
+    return items
 
 
 def get_series_seen(browser):
-    browser.get(base_url + series_seen)
+    browser.get(base_url + "/series/seen")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
     rows = content.select("div.media-container")
 
-    series = []
+    items = []
     for row in rows:
-        series.append(row.select_one("div.media-title").text)
+        items.append(row.select_one("div.media-title").text)
 
-    return series
+    return items
 
 
 if __name__ == "__main__":
@@ -244,3 +240,8 @@ if __name__ == "__main__":
     except Exception as e:
         print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
               "]", str(e), "\n")
+
+        sleep(timeout)
+
+        print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
+              "] Finalizando herramienta..\n")
