@@ -8,7 +8,6 @@
 ```shell
   $ pip3 install -r requirements.txt
 ```
-- *Tesseract-OCR* última versión (<a href="https://tesseract-ocr.github.io">https://tesseract-ocr.github.io</a>)
 
 ## Ejecutar herramienta
 - Descargar herramienta (<a href="https://github.com/cecicifu/exportdede/archive/master.zip">https://github.com/cecicifu/exportdede/archive/master.zip</a>)
