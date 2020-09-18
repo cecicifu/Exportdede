@@ -5,8 +5,10 @@ import signal
 import threading
 import sys
 import os
-import pytesseract
+import json
 from time import sleep
+
+import pytesseract
 from bs4 import BeautifulSoup
 
 from selenium import webdriver
@@ -20,10 +22,11 @@ try:
 except ImportError:
     import Image
 
-# GLOBAL VARS
 base_url = "https://www.megadede.com"
-
 timeout = 2
+
+row_element = "div.media-container"
+title_element = "div.media-title"
 
 
 class bcolors:
@@ -55,8 +58,6 @@ def execute():
 
         option = webdriver.ChromeOptions()
         option.add_argument("-incognito")
-        # option.add_argument("--headless")
-        # option.add_argument("disable-gpu")
 
         browser = webdriver.Chrome(
             executable_path='chromedriver.exe', options=option)
@@ -87,24 +88,32 @@ def execute():
 
             sleep(timeout)
 
-            # Capturar pelis
-            print(get_pelis_favorites(browser))
-            print(get_pelis_pending(browser))
-            print(get_pelis_seen(browser))
+            listas = {
+                "peliculas": {
+                    "peliculas_favorites": get_pelis_favorites(browser),
+                    "peliculas_pending": get_pelis_pending(browser),
+                    "peliculas_seen": get_pelis_seen(browser),
+                },
+                "series": {
+                    "series_following": get_series_following(browser),
+                    "series_favorites": get_series_favorites(browser),
+                    "series_pending": get_series_pending(browser),
+                    "series_seen": get_series_seen(browser),
+                }
+            }
 
-            # Capturar series
-            print(get_series_following(browser))
-            print(get_series_favorites(browser))
-            print(get_series_pending(browser))
-            print(get_series_seen(browser))
+            print(json.dumps(listas))
 
             print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-                  "] Exportando listas..\n")
+                  "] Exportando archivo JSON..\n")
 
             sleep(timeout)
 
+            with open('lists.json', 'w') as outfile:
+                json.dump(listas, outfile)
+
             print("\n" + bcolors.OKGREEN + "[" + bcolors.ENDC + bcolors.OKBLUE + "*" + bcolors.OKGREEN +
-                  "] Listas exportadas!\n")
+                  "] Archivo exportado (lists.json)!\n")
 
             sleep(timeout)
 
@@ -135,11 +144,11 @@ def get_pelis_favorites(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -150,11 +159,11 @@ def get_pelis_pending(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -165,11 +174,11 @@ def get_pelis_seen(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -180,11 +189,11 @@ def get_series_following(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -195,11 +204,11 @@ def get_series_favorites(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -210,11 +219,11 @@ def get_series_pending(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
@@ -225,11 +234,11 @@ def get_series_seen(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div.media-container")
+    rows = content.select(row_element)
 
     items = []
     for row in rows:
-        items.append(row.select_one("div.media-title").text)
+        items.append(row.select_one(title_element).text)
 
     return items
 
