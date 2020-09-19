@@ -1,7 +1,10 @@
 .DS_Store
 node_modules
-/dist
+dist
+build
+__pycache__
 lists.json
+exportdede.spec
 
 # local env files
 .env.local

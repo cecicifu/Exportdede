@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # coding: utf-8
 
-import threading
 import json
 from time import sleep
 
@@ -20,20 +19,8 @@ row_element = "div.media-container"
 title_element = "div.media-title"
 
 
-class Colors:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-
-
 def execute():
-    print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-          "] Ejecutando herramienta..\n")
+    print("\n[*] Ejecutando herramienta..\n")
 
     sleep(timeout)
 
@@ -41,12 +28,15 @@ def execute():
     option.add_argument("-incognito")
 
     browser = webdriver.Chrome(
-        executable_path='chromedriver.exe', options=option)
+        executable_path='libs/chromedriver.exe', options=option)
 
     browser.get(base_url + "/login")
 
-    print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-          "] Abriendo navegador.. inicia sesión para continuar.\n")
+    print("\n[*] Abriendo navegador..\n")
+
+    sleep(timeout)
+
+    print("\n[*] Inicia sesión para continuar..\n")
 
     sleep(timeout)
 
@@ -58,14 +48,12 @@ def execute():
     ActionChains(browser).move_to_element(login).perform()
 
     if login:
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Has iniciado sesión correctamente!\n")
+        print("\n[*] Has iniciado sesión correctamente!\n")
         browser.minimize_window()
 
         sleep(timeout)
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Mostrando listas..\n")
+        print("\n[*] Mostrando listas..\n")
 
         sleep(timeout)
 
@@ -85,32 +73,28 @@ def execute():
 
         print(json.dumps(listas))
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Exportando archivo JSON..\n")
+        print("\n[*] Exportando archivo JSON..\n")
 
         sleep(timeout)
 
         with open('lists.json', 'w') as outfile:
             json.dump(listas, outfile)
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Archivo exportado!\n")
+        print("\n[*] Archivo exportado!\n")
 
         sleep(timeout)
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Finalizando herramienta..\n")
+        print("\n[*] Finalizando herramienta..\n")
 
         sleep(timeout)
 
     else:
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] No se ha iniciado sesion correctamente o ha ocurrido un error!\n")
+        print(
+            "\n[*] No se ha iniciado sesion correctamente o ha ocurrido un error!\n")
 
         sleep(timeout)
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Finalizando herramienta..\n")
+        print("\n[*] Finalizando herramienta..\n")
 
     browser.quit()
 
@@ -222,12 +206,10 @@ def get_series_seen(browser):
 
 if __name__ == "__main__":
     try:
-        threading.Thread(target=execute).start()
+        execute()
     except Exception as e:
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "]", str(e), "\n")
+        print("\n[*]", str(e), "\n")
 
         sleep(timeout)
 
-        print("\n" + Colors.OKGREEN + "[" + Colors.ENDC + Colors.OKBLUE + "*" + Colors.OKGREEN +
-              "] Finalizando herramienta..\n")
+        print("\n[*] Finalizando herramienta..\n")
