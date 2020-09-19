@@ -5,6 +5,7 @@ build
 __pycache__
 lists.json
 exportdede.spec
+exportdede.zip
 
 # local env files
 .env.local
