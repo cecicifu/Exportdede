@@ -68,7 +68,8 @@ def execute():
                 "series_favorites": get_series_favorites(browser),
                 "series_pending": get_series_pending(browser),
                 "series_seen": get_series_seen(browser),
-            }
+            },
+            "listas": get_listas(browser),
         }
 
         print(json.dumps(listas))
@@ -97,6 +98,60 @@ def execute():
         print("\n[*] Finalizando herramienta..\n")
 
     browser.quit()
+
+
+def get_listas(browser):
+    browser.get(base_url + "/listas")
+    body = browser.execute_script("return document.body")
+    source = body.get_attribute('innerHTML')
+    content = BeautifulSoup(source, "html.parser")
+
+    rows = content.select("div#your-listas > div.lista")
+
+    items = []
+    for row in rows:
+        d = dict()
+        href = row.select_one("a")["href"]
+
+        browser.get(base_url + href)
+        body = browser.execute_script("return document.body")
+        source = body.get_attribute('innerHTML')
+        content = BeautifulSoup(source, "html.parser")
+
+        d["url"] = href
+
+        if content.select_one("div.content > h2") is not None:
+            d["nombre"] = content.select_one("div.content > h2").text
+        else:
+            d["nombre"] = "null"
+
+        if content.select_one("div.description") is not None:
+            d["descripcion"] = content.select_one("div.description").text
+        else:
+            d["descripcion"] = "null"
+
+        if content.select_one("a.username") is not None:
+            d["autor"] = content.select_one("a.username").text.strip()
+        else:
+            d["autor"] = "null"
+
+        if content.select_one("span.number") is not None:
+            d["seguidores"] = content.select_one("span.number").text
+        else:
+            d["seguidores"] = "null"
+
+        if content.select_one("div.media-container") is not None:
+            sub_items = content.select("div.media-container")
+
+            d["lista"] = []
+            for sub_item in sub_items:
+                d["lista"].append(sub_item.select_one("div.media-title").text)
+        else:
+            d["lista"] = "null"
+
+        items.append(d)
+
+    return items
 
 
 def get_pelis_favorites(browser):
