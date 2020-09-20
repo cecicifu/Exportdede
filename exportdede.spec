@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['exportdede.py'],
-             pathex=['D:\\laragon\\www\\exportdede'],
+             pathex=['C:\\Users\\cifu\\PycharmProjects\\exportdede'],
              binaries=[],
              datas=[],
              hiddenimports=[],

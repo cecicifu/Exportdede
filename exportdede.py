@@ -3,9 +3,8 @@
 
 import json
 from time import sleep
-
+import pandas as pd
 from bs4 import BeautifulSoup
-
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -17,6 +16,14 @@ timeout = 2
 
 row_element = "div.media-container"
 title_element = "div.media-title"
+
+list_element = "div#your-listas > div.lista"
+name_element = "div.content > h2"
+description_element = "div.description"
+author_element = "a.username"
+followers_element = "span.number"
+item_element = "div.media-container"
+item_title_element = "div.media-title"
 
 
 def execute():
@@ -81,7 +88,14 @@ def execute():
         with open('lists.json', 'w') as outfile:
             json.dump(listas, outfile)
 
-        print("\n[*] Archivo exportado!\n")
+        print("\n[*] Exportando archivo CSV..\n")
+
+        sleep(timeout)
+
+        df = pd.read_json(r'lists.json')
+        df.to_csv(r'lists.csv', index=None)
+
+        print("\n[*] Se ha exportado satisfactoriamente!\n")
 
         sleep(timeout)
 
@@ -106,9 +120,9 @@ def get_listas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select("div#your-listas > div.lista")
+    rows = content.select(list_element)
 
-    items = []
+    items = dict()
     for row in rows:
         d = dict()
         href = row.select_one("a")["href"]
@@ -120,36 +134,36 @@ def get_listas(browser):
 
         d["url"] = href
 
-        if content.select_one("div.content > h2") is not None:
-            d["nombre"] = content.select_one("div.content > h2").text
+        if content.select_one(name_element) is not None:
+            d["nombre"] = content.select_one(name_element).text
         else:
             d["nombre"] = "null"
 
-        if content.select_one("div.description") is not None:
-            d["descripcion"] = content.select_one("div.description").text
+        if content.select_one(description_element) is not None:
+            d["descripcion"] = content.select_one(description_element).text
         else:
             d["descripcion"] = "null"
 
-        if content.select_one("a.username") is not None:
-            d["autor"] = content.select_one("a.username").text.strip()
+        if content.select_one(author_element) is not None:
+            d["autor"] = content.select_one(author_element).text.strip()
         else:
             d["autor"] = "null"
 
-        if content.select_one("span.number") is not None:
-            d["seguidores"] = content.select_one("span.number").text
+        if content.select_one(followers_element) is not None:
+            d["seguidores"] = content.select_one(followers_element).text
         else:
             d["seguidores"] = "null"
 
-        if content.select_one("div.media-container") is not None:
-            sub_items = content.select("div.media-container")
+        if content.select_one(item_element) is not None:
+            sub_items = content.select(item_element)
 
             d["lista"] = []
             for sub_item in sub_items:
-                d["lista"].append(sub_item.select_one("div.media-title").text)
+                d["lista"].append(sub_item.select_one(item_title_element).text)
         else:
             d["lista"] = "null"
 
-        items.append(d)
+        items[d.get("nombre")] = d
 
     return items
 
