@@ -2,14 +2,15 @@
 # coding: utf-8
 
 import json
+import sys
 from time import sleep
-import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from selenium.common.exceptions import TimeoutException
 
 base_url = "https://www.megadede.com"
 timeout = 2
@@ -27,89 +28,73 @@ item_title_element = "div.media-title"
 
 
 def execute():
-    print("\n[*] Ejecutando herramienta..\n")
+    print("\n[*] Ejecutando..")
 
     sleep(timeout)
+    try:
+        if sys.argv[1] == "--firefox":
+            browser = webdriver.Firefox(
+                executable_path='libs/firefoxdriver.exe')
+        else:
+            browser = webdriver.Chrome(
+                executable_path='libs/chromedriver.exe')
+    except IndexError as e:
+        browser = webdriver.Chrome(
+            executable_path='libs/chromedriver.exe')
 
-    option = webdriver.ChromeOptions()
-    option.add_argument("-incognito")
-
-    browser = webdriver.Chrome(
-        executable_path='libs/chromedriver.exe', options=option)
 
     browser.get(base_url + "/login")
 
-    print("\n[*] Abriendo navegador..\n")
+    print("\n[*] Inicia sesión para continuar..")
 
-    sleep(timeout)
+    try:
+        wait = WebDriverWait(browser, 300)
 
-    print("\n[*] Inicia sesión para continuar..\n")
+        login = wait.until(ec.visibility_of_element_located(
+            (By.CLASS_NAME, "username")))
+        
+        ActionChains(browser).move_to_element(login).perform()
 
-    sleep(timeout)
+        if login:
+            print("\n[*] Has iniciado sesión correctamente")
+            browser.minimize_window()
 
-    wait = WebDriverWait(browser, 300)
+            sleep(timeout)
 
-    login = wait.until(ec.visibility_of_element_located(
-        (By.CLASS_NAME, "username")))
+            print("\n[*] Mostrando listas..")
 
-    ActionChains(browser).move_to_element(login).perform()
+            sleep(timeout)
 
-    if login:
-        print("\n[*] Has iniciado sesión correctamente!\n")
-        browser.minimize_window()
+            listas = {
+                "peliculas": {
+                    "peliculas_favorites": get_pelis_favorites(browser),
+                    "peliculas_pending": get_pelis_pending(browser),
+                    "peliculas_seen": get_pelis_seen(browser),
+                },
+                "series": {
+                    "series_following": get_series_following(browser),
+                    "series_favorites": get_series_favorites(browser),
+                    "series_pending": get_series_pending(browser),
+                    "series_seen": get_series_seen(browser),
+                },
+                "listas": get_listas(browser),
+            }
 
-        sleep(timeout)
+            print("\n[*] Exportando archivo JSON..")
 
-        print("\n[*] Mostrando listas..\n")
+            sleep(timeout)
 
-        sleep(timeout)
+            with open('lists.json', 'w') as outfile:
+                json.dump(listas, outfile)
 
-        listas = {
-            "peliculas": {
-                "peliculas_favorites": get_pelis_favorites(browser),
-                "peliculas_pending": get_pelis_pending(browser),
-                "peliculas_seen": get_pelis_seen(browser),
-            },
-            "series": {
-                "series_following": get_series_following(browser),
-                "series_favorites": get_series_favorites(browser),
-                "series_pending": get_series_pending(browser),
-                "series_seen": get_series_seen(browser),
-            },
-            "listas": get_listas(browser),
-        }
+            print("\n[*] Se ha exportado correctamente")
 
-        print(json.dumps(listas))
-
-        print("\n[*] Exportando archivo JSON..\n")
-
-        sleep(timeout)
-
-        with open('lists.json', 'w') as outfile:
-            json.dump(listas, outfile)
-
-        print("\n[*] Exportando archivo CSV..\n")
+            sleep(timeout)
+        
+    except TimeoutException as e:
+        print("\n[*] Se ha agotado el tiempo de espera")
 
         sleep(timeout)
-
-        df = pd.read_json(r'lists.json')
-        df.to_csv(r'lists.csv', index=None)
-
-        print("\n[*] Se ha exportado satisfactoriamente!\n")
-
-        sleep(timeout)
-
-        print("\n[*] Finalizando herramienta..\n")
-
-        sleep(timeout)
-
-    else:
-        print(
-            "\n[*] No se ha iniciado sesion correctamente o ha ocurrido un error!\n")
-
-        sleep(timeout)
-
-        print("\n[*] Finalizando herramienta..\n")
 
     browser.quit()
 
@@ -280,5 +265,3 @@ if __name__ == "__main__":
         print("\n[*]", str(e), "\n")
 
         sleep(timeout)
-
-        print("\n[*] Finalizando herramienta..\n")
