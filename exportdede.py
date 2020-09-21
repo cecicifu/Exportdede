@@ -31,6 +31,7 @@ def execute():
     print("\n[*] Ejecutando..")
 
     sleep(timeout)
+    
     try:
         if sys.argv[1] == "--firefox":
             browser = webdriver.Firefox(
@@ -41,7 +42,6 @@ def execute():
     except IndexError as e:
         browser = webdriver.Chrome(
             executable_path='libs/chromedriver.exe')
-
 
     browser.get(base_url + "/login")
 
