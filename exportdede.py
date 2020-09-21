@@ -47,7 +47,7 @@ def execute():
 
     sleep(timeout)
 
-    wait = WebDriverWait(browser, 60)
+    wait = WebDriverWait(browser, 300)
 
     login = wait.until(ec.visibility_of_element_located(
         (By.CLASS_NAME, "username")))
