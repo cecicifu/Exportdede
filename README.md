@@ -6,11 +6,27 @@
     * Google Chrome (<a href="https://www.google.com/chrome">https://www.google.com/chrome</a>)
     * Mozilla Firefox (<a href="https://www.mozilla.org/firefox">https://www.mozilla.org/firefox</a>)
 
-## Ejecutar herramienta
+## Archivo ejecutable
 * Descargar herramienta según el navegador instalado 
     * Google Chrome (<a href="https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_chrome.zip">https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_chrome.zip</a>)
     * Mozilla Firefox (<a href="https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_firefox.zip">https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_firefox.zip</a>)
 * Extraer archivo `exportdede.zip`
 * Ejecutar archivo `exportdede.exe`
-* Se abrirá un navegador *Google Chrome* donde deberás introducir tus credenciales.
+* Se abrirá el navegador donde deberás introducir tus credenciales.
+* Introducidos correctamente la herramienta efectuará los siguientes pasos de manera automática y exportará las listas a un archivo llamado `lists.json` en el mismo directorio.
+
+## Línea de comandos (Avanzado)
+** IMPORTANTE ** Para este paso es necesario tener instalado previamente Python 3 junto a todas las dependencias indicadas en el archivo `requirements.txt`.
+* Descargar herramienta (<a href="https://github.com/cecicifu/exportdede/archive/master.zip">https://github.com/cecicifu/exportdede/archive/master.zip</a>)
+* Dirígete al directorio de la herramienta a través de la terminal.
+* Una vez allí, ejecutar el siguiente comando en la terminal dependiendo de tu navegador:
+    * Google Chrome:
+        ```shell
+        $ py exportdede.py
+        ```
+    * Mozilla Firefox:
+        ```shell
+        $ py exportdede.py --firefox
+        ```
+* Se abrirá el navegador donde deberás introducir tus credenciales.
 * Introducidos correctamente la herramienta efectuará los siguientes pasos de manera automática y exportará las listas a un archivo llamado `lists.json` en el mismo directorio.
