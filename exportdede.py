@@ -15,23 +15,28 @@ from selenium.common.exceptions import *
 base_url = "https://www.megadede.com"
 timeout = 2
 
-row_element = "div.media-container"
-title_element = "div.media-title"
+row_list = "div#your-listas > div.lista"
+name_list = "div.content > h2"
+description_list = "div.description"
+author_list = "a.username"
+followers_list = "span.number"
+item_list = "div.media-container"
+item_title_list = "div.media-title"
 
-list_element = "div#your-listas > div.lista"
-name_element = "div.content > h2"
-description_element = "div.description"
-author_element = "a.username"
-followers_element = "span.number"
-item_element = "div.media-container"
-item_title_element = "div.media-title"
+row_info = "div.media-container"
+name_info = "div.media-title"
+url_info = "a[data-container='body']"
+item_info_links = "div.external-links-container"
+item_info = "div.external-links-container > ul > li > a"
 
 
 def execute():
     print("\n[*] Ejecutando..")
 
     sleep(timeout)
-    
+
+    browser = ""
+
     try:
         if sys.argv[1] == "--firefox":
             browser = webdriver.Firefox(
@@ -44,21 +49,15 @@ def execute():
 
             exit(0)
 
-    except IndexError:
-        print("\n[*] Uso: py exportdede.py [--chrome|--firefox]")
+        browser.get(base_url + "/login")
 
-        exit(0)
+        print("\n[*] Inicia sesión para continuar..")
 
-    browser.get(base_url + "/login")
-
-    print("\n[*] Inicia sesión para continuar..")
-
-    try:
         wait = WebDriverWait(browser, 300)
 
         login = wait.until(ec.visibility_of_element_located(
             (By.CLASS_NAME, "username")))
-        
+
         ActionChains(browser).move_to_element(login).perform()
 
         if login:
@@ -67,43 +66,44 @@ def execute():
 
             sleep(timeout)
 
-            print("\n[*] Mostrando listas..")
-
-            sleep(timeout)
-
-            listas = {
-                "peliculas": {
-                    "peliculas_favorites": get_pelis_favorites(browser),
-                    "peliculas_pending": get_pelis_pending(browser),
-                    "peliculas_seen": get_pelis_seen(browser),
-                },
-                "series": {
-                    "series_following": get_series_following(browser),
-                    "series_favorites": get_series_favorites(browser),
-                    "series_pending": get_series_pending(browser),
-                    "series_seen": get_series_seen(browser),
-                },
-                "listas": get_listas(browser),
-            }
-
             print("\n[*] Exportando archivo JSON..")
 
             sleep(timeout)
 
+            data = {
+                "peliculas": {
+                    "peliculas_favoritas": get_pelis_favoritas(browser),
+                    "peliculas_pendientes": get_pelis_pendientes(browser),
+                    "peliculas_vistas": get_pelis_vistas(browser),
+                },
+                "series": {
+                    "series_siguiendo": get_series_siguiendo(browser),
+                    "series_favoritas": get_series_favoritas(browser),
+                    "series_pendientes": get_series_pendientes(browser),
+                    "series_vistas": get_series_vistas(browser),
+                },
+                "listas": get_listas(browser),
+            }
+
             with open('lists.json', 'w') as outfile:
-                json.dump(listas, outfile)
+                json.dump(data, outfile)
 
             print("\n[*] Se ha exportado correctamente")
 
             sleep(timeout)
-        
+
+            browser.quit()
+
     except TimeoutException:
         print("\n[*] Se ha agotado el tiempo de espera")
+
+        browser.quit()
 
     except WebDriverException:
         print("\n[*] Ejecución detenida")
 
-    browser.quit()
+    except IndexError:
+        print("\n[*] Uso: py exportdede.py [--chrome|--firefox]")
 
 
 def get_listas(browser):
@@ -112,7 +112,7 @@ def get_listas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(list_element)
+    rows = content.select(row_list)
 
     items = dict()
     for row in rows:
@@ -124,34 +124,35 @@ def get_listas(browser):
         source = body.get_attribute('innerHTML')
         content = BeautifulSoup(source, "html.parser")
 
-        d["url"] = href
+        d["url"] = base_url + href
 
-        if content.select_one(name_element) is not None:
-            d["nombre"] = content.select_one(name_element).text
+        if content.select_one(name_list) is not None:
+            d["nombre"] = content.select_one(name_list).text
         else:
             d["nombre"] = "null"
 
-        if content.select_one(description_element) is not None:
-            d["descripcion"] = content.select_one(description_element).text
+        if content.select_one(description_list) is not None:
+            d["descripcion"] = content.select_one(description_list).text
         else:
             d["descripcion"] = "null"
 
-        if content.select_one(author_element) is not None:
-            d["autor"] = content.select_one(author_element).text.strip()
+        if content.select_one(author_list) is not None:
+            d["autor"] = content.select_one(author_list).text.strip()
         else:
             d["autor"] = "null"
 
-        if content.select_one(followers_element) is not None:
-            d["seguidores"] = content.select_one(followers_element).text
+        if content.select_one(followers_list) is not None:
+            d["seguidores"] = content.select_one(followers_list).text
         else:
             d["seguidores"] = "null"
 
-        if content.select_one(item_element) is not None:
-            sub_items = content.select(item_element)
+        if content.select_one(item_list) is not None:
+            sub_items = content.select(item_list)
 
-            d["lista"] = []
+            d["lista"] = dict()
             for sub_item in sub_items:
-                d["lista"].append(sub_item.select_one(item_title_element).text)
+                item = get_item_info(browser, sub_item)
+                d["lista"][item.get("url")] = item
         else:
             d["lista"] = "null"
 
@@ -160,115 +161,143 @@ def get_listas(browser):
     return items
 
 
-def get_pelis_favorites(browser):
+def get_pelis_favoritas(browser):
     browser.get(base_url + "/pelis/favorites")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_pelis_pending(browser):
+def get_pelis_pendientes(browser):
     browser.get(base_url + "/pelis/pending")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_pelis_seen(browser):
+def get_pelis_vistas(browser):
     browser.get(base_url + "/pelis/seen")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_series_following(browser):
+def get_series_siguiendo(browser):
     browser.get(base_url + "/series/following")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_series_favorites(browser):
+def get_series_favoritas(browser):
     browser.get(base_url + "/series/favorites")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_series_pending(browser):
+def get_series_pendientes(browser):
     browser.get(base_url + "/series/pending")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
 
 
-def get_series_seen(browser):
+def get_series_vistas(browser):
     browser.get(base_url + "/series/seen")
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_element)
+    rows = content.select(row_info)
 
-    items = []
+    items = dict()
     for row in rows:
-        items.append(row.select_one(title_element).text)
+        item = get_item_info(browser, row)
+        items[item.get("url")] = item
 
     return items
+
+
+def get_item_info(browser, row):
+    d = dict()
+
+    d["nombre"] = row.select_one(name_info).text
+    d["url"] = row.select_one(url_info)["href"]
+
+    browser.get(d.get("url"))
+    body = browser.execute_script("return document.body")
+    source = body.get_attribute('innerHTML')
+    content = BeautifulSoup(source, "html.parser")
+
+    if content.select_one(item_info_links) is not None:
+        d["imdb_id"] = content.select_one(item_info)["href"][27:]
+        d["imdb_url"] = content.select_one(item_info)["href"]
+    else:
+        d["imdb_id"] = "null"
+        d["imdb_url"] = "null"
+
+    return d
 
 
 if __name__ == "__main__":
     try:
         execute()
-        
+
     except Exception as e:
         print("\n[*]", str(e))
 
