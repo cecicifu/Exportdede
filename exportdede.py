@@ -10,7 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import *
 
 base_url = "https://www.megadede.com"
 timeout = 2
@@ -93,6 +93,11 @@ def execute():
         
     except TimeoutException as e:
         print("\n[*] Se ha agotado el tiempo de espera")
+
+        sleep(timeout)
+
+    except WebDriverException as e:
+        print("\n[*] Ejecución detenida")
 
         sleep(timeout)
 
@@ -261,7 +266,13 @@ def get_series_seen(browser):
 if __name__ == "__main__":
     try:
         execute()
+        
     except Exception as e:
         print("\n[*]", str(e), "\n")
+
+        sleep(timeout)
+
+    except KeyboardInterrupt as e:
+        print("\n[*] Ejecución detenida")
 
         sleep(timeout)
