@@ -36,12 +36,18 @@ def execute():
         if sys.argv[1] == "--firefox":
             browser = webdriver.Firefox(
                 executable_path='libs/firefoxdriver.exe')
-        else:
+        elif sys.argv[1] == "--chrome":
             browser = webdriver.Chrome(
                 executable_path='libs/chromedriver.exe')
-    except IndexError as e:
-        browser = webdriver.Chrome(
-            executable_path='libs/chromedriver.exe')
+        else:
+            print("\n[*] Uso: py exportdede.py [--chrome|--firefox]")
+
+            exit(0)
+
+    except IndexError:
+        print("\n[*] Uso: py exportdede.py [--chrome|--firefox]")
+
+        exit(0)
 
     browser.get(base_url + "/login")
 
@@ -91,15 +97,11 @@ def execute():
 
             sleep(timeout)
         
-    except TimeoutException as e:
+    except TimeoutException:
         print("\n[*] Se ha agotado el tiempo de espera")
 
-        sleep(timeout)
-
-    except WebDriverException as e:
+    except WebDriverException:
         print("\n[*] Ejecución detenida")
-
-        sleep(timeout)
 
     browser.quit()
 
@@ -268,11 +270,7 @@ if __name__ == "__main__":
         execute()
         
     except Exception as e:
-        print("\n[*]", str(e), "\n")
+        print("\n[*]", str(e))
 
-        sleep(timeout)
-
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         print("\n[*] Ejecución detenida")
-
-        sleep(timeout)

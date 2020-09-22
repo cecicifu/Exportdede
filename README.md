@@ -22,7 +22,7 @@
 * Una vez allí, ejecutar el siguiente comando en la terminal dependiendo de tu navegador:
     * Google Chrome:
         ```shell
-        $ py exportdede.py
+        $ py exportdede.py --chrome
         ```
     * Mozilla Firefox:
         ```shell
