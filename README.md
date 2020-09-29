@@ -1,13 +1,13 @@
+<h1 align="center">exportdede</h1>
 <p align="center"><img src="https://i.imgur.com/wTBblA4.png" title="Megadede Tweet" alt="Megadede Tweet"></p>
 
 **Requisitos**
-
 * Tener al menos uno de estos navegadores instalado:
-    * Google Chrome (<a href="https://www.google.com/chrome">https://www.google.com/chrome</a>)
-    * Mozilla Firefox (<a href="https://www.mozilla.org/firefox">https://www.mozilla.org/firefox</a>)
+    * [Google Chrome](https://www.google.com/chrome)
+    * [Mozilla Firefox](https://www.mozilla.org/firefoxhttps)
 
 ## Archivo ejecutable
-** IMPORTANTE ** Es probable que este proceso pueda llegar a tardar más de lo esperado, esto depende de la velocidad de conexión a internet de cada uno y/o de la cantidad de información que la herramienta tenga que procesar.
+**IMPORTANTE** Es probable que este proceso pueda llegar a tardar más de lo esperado, esto depende de la velocidad de conexión a internet de cada uno y/o de la cantidad de información que la herramienta tenga que procesar.
 * Descargar herramienta según el navegador instalado:
     * Google Chrome (<a href="https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_chrome.zip">https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_chrome.zip</a>)
     * Mozilla Firefox (<a href="https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_firefox.zip">https://github.com/cecicifu/exportdede/releases/download/1.0/exportdede_firefox.zip</a>)
@@ -15,12 +15,11 @@
 * Ejecutar archivo `exportdede.exe`.
 * Se abrirá el navegador donde deberás introducir tus credenciales.
 * Introducidos correctamente la herramienta efectuará los siguientes pasos de manera automática y exportará las listas a un archivo llamado `lists.json` en el mismo directorio.
-
 ## Línea de comandos (Avanzado)
-** IMPORTANTE ** Es probable que este proceso pueda llegar a tardar más de lo esperado, esto depende de la velocidad de conexión a internet de cada uno y/o de la cantidad de información que la herramienta tenga que procesar.
+**IMPORTANTE** Es probable que este proceso pueda llegar a tardar más de lo esperado, esto depende de la velocidad de conexión a internet de cada uno y/o de la cantidad de información que la herramienta tenga que procesar.
 
-** IMPORTANTE ** Para este paso es necesario tener instalado previamente Python 3 junto a todas las dependencias indicadas en el archivo `requirements.txt`.
-* Descargar herramienta (<a href="https://github.com/cecicifu/exportdede/archive/master.zip">https://github.com/cecicifu/exportdede/archive/master.zip</a>)
+**IMPORTANTE** Para este paso es necesario tener instalado previamente Python 3 junto a todas las dependencias indicadas en el archivo `requirements.txt`.
+* [Descargar herramienta](https://github.com/cecicifu/exportdede/archive/master.zip)
 * Dirígete al directorio de la herramienta a través de la terminal.
 * Una vez allí, ejecutar el siguiente comando en la terminal dependiendo de tu navegador:
     * Google Chrome:
