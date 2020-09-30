@@ -35,7 +35,7 @@ def execute():
 
     sleep(timeout)
 
-    browser = ""
+    browser = None
 
     try:
         if sys.argv[1] == "--firefox":
