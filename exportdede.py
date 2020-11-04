@@ -15,20 +15,6 @@ from selenium.common.exceptions import *
 base_url = "https://www.megadede.com"
 timeout = 2
 
-row_list = "div#your-listas > div.lista"
-name_list = "div.content > h2"
-description_list = "div.description"
-author_list = "a.username"
-followers_list = "span.number"
-item_list = "div.media-container"
-item_title_list = "div.media-title"
-
-row_info = "div.media-container"
-name_info = "div.media-title"
-url_info = "a[data-container='body']"
-item_info_links = "div.external-links-container"
-item_info = "div.external-links-container > ul > li > a"
-
 
 def execute():
     print("\n[*] Ejecutando..")
@@ -112,7 +98,7 @@ def get_listas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_list)
+    rows = content.select("div#your-listas > div.lista")
 
     items = dict()
     for row in rows:
@@ -126,35 +112,35 @@ def get_listas(browser):
 
         d["url"] = base_url + href
 
-        if content.select_one(name_list) is not None:
-            d["nombre"] = content.select_one(name_list).text
+        if content.select_one("div.content > h2") is not None:
+            d["nombre"] = content.select_one("div.content > h2").text
         else:
-            d["nombre"] = "null"
+            d["nombre"] = None
 
-        if content.select_one(description_list) is not None:
-            d["descripcion"] = content.select_one(description_list).text
+        if content.select_one("div.description") is not None:
+            d["descripcion"] = content.select_one("div.description").text
         else:
-            d["descripcion"] = "null"
+            d["descripcion"] = None
 
-        if content.select_one(author_list) is not None:
-            d["autor"] = content.select_one(author_list).text.strip()
+        if content.select_one("a.username") is not None:
+            d["autor"] = content.select_one("a.username").text.strip()
         else:
-            d["autor"] = "null"
+            d["autor"] = None
 
-        if content.select_one(followers_list) is not None:
-            d["seguidores"] = content.select_one(followers_list).text
+        if content.select_one("span.number") is not None:
+            d["seguidores"] = content.select_one("span.number").text
         else:
-            d["seguidores"] = "null"
+            d["seguidores"] = None
 
-        if content.select_one(item_list) is not None:
-            sub_items = content.select(item_list)
+        if content.select_one("div.media-container") is not None:
+            sub_items = content.select("div.media-container")
 
             d["lista"] = dict()
             for sub_item in sub_items:
                 item = get_item_info(browser, sub_item)
                 d["lista"][item.get("url")] = item
         else:
-            d["lista"] = "null"
+            d["lista"] = None
 
         items[d.get("nombre")] = d
 
@@ -167,7 +153,7 @@ def get_pelis_favoritas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -183,7 +169,7 @@ def get_pelis_pendientes(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -199,7 +185,7 @@ def get_pelis_vistas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -215,7 +201,7 @@ def get_series_siguiendo(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -231,7 +217,7 @@ def get_series_favoritas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -247,7 +233,7 @@ def get_series_pendientes(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -263,7 +249,7 @@ def get_series_vistas(browser):
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    rows = content.select(row_info)
+    rows = content.select("div.media-container")
 
     items = dict()
     for row in rows:
@@ -276,20 +262,22 @@ def get_series_vistas(browser):
 def get_item_info(browser, row):
     d = dict()
 
-    d["nombre"] = row.select_one(name_info).text
-    d["url"] = row.select_one(url_info)["href"]
+    d["nombre"] = row.select_one("div.media-title").text
+    d["url"] = row.select_one("a[data-container='body']")["href"]
 
     browser.get(d.get("url"))
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
 
-    if content.select_one(item_info_links) is not None:
-        d["imdb_id"] = content.select_one(item_info)["href"][27:]
-        d["imdb_url"] = content.select_one(item_info)["href"]
+    if content.select_one("div.external-links-container") is not None:
+        d["imdb_id"] = content.select_one(
+            "div.external-links-container > ul > li > a")["href"].split("/")[4]
+        d["imdb_url"] = content.select_one(
+            "div.external-links-container > ul > li > a")["href"]
     else:
-        d["imdb_id"] = "null"
-        d["imdb_url"] = "null"
+        d["imdb_id"] = None
+        d["imdb_url"] = None
 
     return d
 
