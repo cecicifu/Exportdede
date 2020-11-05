@@ -58,15 +58,15 @@ def execute():
 
             data = {
                 "peliculas": {
-                    "peliculas_favoritas": get_pelis_favoritas(browser),
-                    "peliculas_pendientes": get_pelis_pendientes(browser),
-                    "peliculas_vistas": get_pelis_vistas(browser),
+                    "peliculas_favoritas": get_item(browser, "/pelis/favorites"),
+                    "peliculas_pendientes": get_item(browser, "/pelis/pending"),
+                    "peliculas_vistas": get_item(browser, "/pelis/seen"),
                 },
                 "series": {
-                    "series_siguiendo": get_series_siguiendo(browser),
-                    "series_favoritas": get_series_favoritas(browser),
-                    "series_pendientes": get_series_pendientes(browser),
-                    "series_vistas": get_series_vistas(browser),
+                    "series_siguiendo": get_item(browser, "/series/following"),
+                    "series_favoritas": get_item(browser, "/series/favorites"),
+                    "series_pendientes": get_item(browser, "/series/pending"),
+                    "series_vistas": get_item(browser, "/series/seen"),
                 },
                 "listas": get_listas(browser),
             }
@@ -147,104 +147,8 @@ def get_listas(browser):
     return items
 
 
-def get_pelis_favoritas(browser):
-    browser.get(base_url + "/pelis/favorites")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_pelis_pendientes(browser):
-    browser.get(base_url + "/pelis/pending")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_pelis_vistas(browser):
-    browser.get(base_url + "/pelis/seen")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_series_siguiendo(browser):
-    browser.get(base_url + "/series/following")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_series_favoritas(browser):
-    browser.get(base_url + "/series/favorites")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_series_pendientes(browser):
-    browser.get(base_url + "/series/pending")
-    body = browser.execute_script("return document.body")
-    source = body.get_attribute('innerHTML')
-    content = BeautifulSoup(source, "html.parser")
-
-    rows = content.select("div.media-container")
-
-    items = dict()
-    for row in rows:
-        item = get_item_info(browser, row)
-        items[item.get("url")] = item
-
-    return items
-
-
-def get_series_vistas(browser):
-    browser.get(base_url + "/series/seen")
+def get_item(browser, resource):
+    browser.get(base_url + resource)
     body = browser.execute_script("return document.body")
     source = body.get_attribute('innerHTML')
     content = BeautifulSoup(source, "html.parser")
@@ -276,8 +180,7 @@ def get_item_info(browser, row):
         d["imdb_url"] = content.select_one(
             "div.external-links-container > ul > li > a")["href"]
     else:
-        d["imdb_id"] = None
-        d["imdb_url"] = None
+        d["imdb_id"] = d["imdb_url"] = None
 
     return d
 
